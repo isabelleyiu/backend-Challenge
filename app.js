@@ -30,7 +30,7 @@ app.get('/contacts/:company', (req, res) => {
   });
 });
 
-app.get('/permits/:block/:year/:month/:date', (req, res) => {
+app.get('/permits/:block/:month/:date/:year', (req, res) => {
   const block = req.params.block;
   const year = req.params.year;
   const month = req.params.month - 1;
