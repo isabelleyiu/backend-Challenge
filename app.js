@@ -10,12 +10,11 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('hello');
+  res.send('Welcome to backend-challenge!');
 });
 
 app.get('/contacts/:company', (req, res) => {
   const company = req.params.company;
-  console.log(req.params.company)
   const sql = 
   `SELECT DISTINCT permits."Street Number", permits."Street Number Suffix", permits."Street Name", permits."Street Suffix", permits."Unit", permits."Supervisor District", permits.Zipcode, permits.Location 
   FROM contacts INNER JOIN permits ON contacts."Permit Number" = permits."Permit Number" 
@@ -31,6 +30,24 @@ app.get('/contacts/:company', (req, res) => {
   });
 });
 
-// app.get('/fireviolations/:block/:date')
+app.get('/permits/:block/:year/:month/:date', (req, res) => {
+  const block = req.params.block;
+  const year = req.params.year;
+  const month = req.params.month - 1;
+  const date = req.params.date;
+
+  const sql =
+  `SELECT DISTINCT contacts."Company Name", contacts."Street Number", contacts."Street", contacts."Street Suffix", contacts."State", contacts."Zipcode", contacts.Phone
+  FROM fire_violations INNER JOIN permits ON fire_violations.Location = permits.Location 
+  INNER JOIN contacts ON contacts."Permit Number" = permits."Permit Number"
+  WHERE Permits.Block = ? 
+  AND permits."Issued Date" < ? 
+  AND permits.Status = 'issued'`;
+
+  db.all(sql, [block, `"${month}/${date}/${year}"`], (err, results) => {
+    if(err) console.log(err);
+    res.json(results);
+  });
+});
 
 app.listen(3000, console.log('backend challenge is ON!'));
